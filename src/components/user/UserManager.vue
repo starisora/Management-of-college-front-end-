@@ -52,6 +52,8 @@
           </el-tag>
         </template>
       </el-table-column>
+      <el-table-column prop="dormitoryNum" label="宿舍号" width="180px">
+      </el-table-column>
       <el-table-column prop="phone" label="电话" width="180px">
       </el-table-column>
       <el-table-column prop="operate" label="操作">
