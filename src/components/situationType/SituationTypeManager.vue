@@ -3,18 +3,18 @@
     <!--搜索-->
     <div style="margin-bottom: 5px">
       <!--@keyup.enter.native回车事件调用函数-->
-      <el-input v-model="name" placeholder="请输入名字" suffix-icon="el-icon-search" style="width: 20%" size="small"
-                @keyup.enter.native="loadPost"></el-input>
-      <el-select v-model="sex" filterable placeholder="请选择性别" size="small" style="margin-left: 5px">
-        <el-option
-            v-for="item in sexs"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-        </el-option>
-      </el-select>
-      <el-button type="primary" size="small" style="margin-left: 5px" @click="loadPost">查询</el-button>
-      <el-button type="success" size="small" @click="resetParam">重置</el-button>
+      <!--      <el-input v-model="name" placeholder="请输入名字" suffix-icon="el-icon-search" style="width: 20%" size="small"-->
+      <!--                @keyup.enter.native="loadPost"></el-input>-->
+      <!--      <el-select v-model="sex" filterable placeholder="请选择性别" size="small" style="margin-left: 5px">-->
+      <!--        <el-option-->
+      <!--            v-for="item in sexs"-->
+      <!--            :key="item.value"-->
+      <!--            :label="item.label"-->
+      <!--            :value="item.value">-->
+      <!--        </el-option>-->
+      <!--      </el-select>-->
+      <!--      <el-button type="primary" size="small" style="margin-left: 5px" @click="loadPost">查询</el-button>-->
+      <!--      <el-button type="success" size="small" @click="resetParam">重置</el-button>-->
       <el-button type="primary" size="small" style="margin-left: 5px" @click="add">新增</el-button>
     </div>
     <!--背景颜色/文字颜色-->
@@ -24,37 +24,9 @@
     >
       <el-table-column prop="id" label="ID" width="120px">
       </el-table-column>
-      <el-table-column prop="num" label="账号" width="180px">
+      <el-table-column prop="situationType" label="报修类型" width="180px">
       </el-table-column>
-      <el-table-column prop="name" label="姓名" width="180px">
-      </el-table-column>
-      <el-table-column prop="age" label="年龄" width="180px">
-      </el-table-column>
-      <el-table-column prop="sex" label="性别" width="180px">
-        <template slot-scope="scope">
-          <el-tag
-              :type="scope.row.sex === 1 ? 'primary' : 'success'"
-              disable-transitions>{{scope.row.sex === 1 ? '男' : '女'}}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="roleId" label="角色" width="180px">
-        <template slot-scope="scope">
-          <el-tag
-              :type="scope.row.roleId === 0 ?
-              'danger' : (scope.row.roleId === 1 ?
-              'primary' : 'success')"
-              disable-transitions>{{
-              scope.row.roleId === 0 ?
-                  '超级管理员' : (scope.row.roleId === 1 ?
-                  '管理员' : '用户')
-            }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="dormitoryNum" label="宿舍号" width="180px">
-      </el-table-column>
-      <el-table-column prop="phone" label="电话" width="180px">
+      <el-table-column prop="remark" label="备注" width="180px">
       </el-table-column>
       <el-table-column prop="operate" label="操作">
         <template slot-scope="scope">
@@ -97,41 +69,16 @@
         center>
       <el-form ref="form" :model="form" label-width="80px" :rules="rule">
         <!--这里加prop是为了检查,form需要索引这个属性-->
-        <el-form-item label="账号" prop="num">
+        <el-form-item label="报修类型" prop="situationType">
           <!--:span="11"属性可以增加长度-->
           <el-col :span="20">
-            <el-input v-model="form.num"></el-input>
+            <el-input v-model="form.situationType"></el-input>
           </el-col>
         </el-form-item>
 
-        <el-form-item label="密码" prop="password">
+        <el-form-item label="备注" prop="remark">
           <el-col :span="20">
-            <el-input v-model="form.password"></el-input>
-          </el-col>
-        </el-form-item>
-
-        <el-form-item label="姓名" prop="name">
-          <el-col :span="20">
-            <el-input v-model="form.name"></el-input>
-          </el-col>
-        </el-form-item>
-
-        <el-form-item label="年龄" prop="age">
-          <el-col :span="20">
-            <el-input v-model="form.age"></el-input>
-          </el-col>
-        </el-form-item>
-
-        <el-form-item label="性别" prop="sex">
-          <el-radio-group v-model="form.sex">
-            <el-radio label="1">男</el-radio>
-            <el-radio label="0">女</el-radio>
-          </el-radio-group>
-        </el-form-item>
-
-        <el-form-item label="电话" prop="phone">
-          <el-col :span="20">
-            <el-input v-model="form.phone"></el-input>
+            <el-input v-model="form.remark" type="textarea"></el-input>
           </el-col>
         </el-form-item>
       </el-form>
@@ -145,7 +92,7 @@
 
 <script>
 export default {
-  name: "UserManager",
+  name: "SituationTypeManager",
   data() {
     //单独判断年龄输入
     let checkAge = (rule,value,callback) =>{
@@ -161,7 +108,7 @@ export default {
       if(this.form.id){
         return callback();
       }
-      this.$axios.get(this.$httpUrl+'/user/findByNum?num='+this.form.num).then(res=>res.data).then(res=>{
+      this.$axios.get(this.$httpUrl+'/situationType/findByNum?num='+this.form.num).then(res=>res.data).then(res=>{
         //没有查到数据就回调
         if (res.code===400){
           callback()
@@ -193,13 +140,8 @@ export default {
       centerDialogVisible:false,
       form:{
         id:"",
-        num:"",
-        name:"",
-        password:"",
-        age:"",
-        sex:"1",
-        phone:"",
-        roleId:"2",
+        situationType:"",
+        remark:"",
       },
       //交互数据
       param:{},
@@ -235,19 +177,16 @@ export default {
   methods:{
     loadGet(){
       //axios请求，并且筛选出data
-      this.$axios.get(this.$httpUrl+'/user/list').then(res=>res.data).then(res=>{
+      this.$axios.get(this.$httpUrl+'/situationType/list').then(res=>res.data).then(res=>{
         console.log(res)
       })
     },
     loadPost(){
       //axios请求，并且筛选出data
-      this.$axios.post(this.$httpUrl+'/user/listPage',{
+      this.$axios.post(this.$httpUrl+'/situationType/listPage',{
         pageSize:this.pageSize,
         pageNum:this.pageNum,
         param:{
-          name:this.name,
-          sex:this.sex,
-          roleId:"2",
         }
       }).then(res=>res.data).then(res=>{
         console.log(res)
@@ -287,7 +226,7 @@ export default {
       })
     },
     doAdd(){
-      this.$axios.post(this.$httpUrl+'/user/save', this.form).then(res=>res.data).then(res=>{
+      this.$axios.post(this.$httpUrl+'/situationType/save', this.form).then(res=>res.data).then(res=>{
         console.log(res)
         if (res.code===200){
           //alert("成功")
@@ -308,17 +247,12 @@ export default {
       this.$nextTick(()=>{
         //赋值到表单
         this.form.id = row.id
-        this.form.num = row.num
-        this.form.name = row.name
-        this.form.password = row.password
-        this.form.age = row.age+''
-        this.form.sex = row.sex+''
-        this.form.phone = row.phone
-        this.form.roleId = row.roleId
+        this.form.situationType = row.situationType
+        this.form.remark = row.remark
       })
     },
     doMod(){
-      this.$axios.post(this.$httpUrl+'/user/mod', this.form).then(res=>res.data).then(res=>{
+      this.$axios.post(this.$httpUrl+'/situationType/mod', this.form).then(res=>res.data).then(res=>{
         console.log(res)
         if (res.code===200){
           //alert("成功")
@@ -335,7 +269,7 @@ export default {
     },
     del(id){
       console.log(id)
-      this.$axios.get(this.$httpUrl+'/user/del?id='+id).then(res=>res.data).then(res=>{
+      this.$axios.get(this.$httpUrl+'/situationType/del?id='+id).then(res=>res.data).then(res=>{
         console.log(res)
         if (res.code===200){
           //alert("成功")
@@ -385,9 +319,9 @@ export default {
     },
   },
   watch:{
-    dormitoryNum(){
-      this.loadPost()
-    },
+    // dormitoryNum(){
+    //   this.loadPost()
+    // },
   },
   beforeMount() {
     // this.loadGet();

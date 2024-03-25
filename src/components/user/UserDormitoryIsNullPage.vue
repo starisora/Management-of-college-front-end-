@@ -1,7 +1,7 @@
 <template>
   <div>
     <!--搜索-->
-    <p>{{dormitoryNum}}</p>
+<!--    <p>{{dormitoryNum}}</p>-->
     <div style="margin-bottom: 5px">
       <!--@keyup.enter.native回车事件调用函数-->
       <el-input v-model="name" placeholder="请输入名字" suffix-icon="el-icon-search" style="width: 20%" size="small"
@@ -56,7 +56,7 @@
       </el-table-column>
       <el-table-column prop="dormitoryNum" label="宿舍号" width="180px">
       </el-table-column>
-      <el-table-column prop="phone" label="电话" width="180px">
+      <el-table-column prop="phone" label="电话">
       </el-table-column>
     </el-table>
     <!--    分页-->
@@ -182,6 +182,11 @@ export default {
         }
       })
     }
+  },
+  watch:{
+    dormitoryNum(){
+      this.loadPost()
+    },
   },
 
   beforeMount() {

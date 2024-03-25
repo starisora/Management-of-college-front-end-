@@ -7,7 +7,7 @@
     </div>
 
     <div style="flex: 1 1 0;text-align: center;font-size: 30px">
-      <span>仓库管理系统</span>
+      <span>宿舍管理系统</span>
     </div>
 
     <!--flex: flex-grow flex-shrink flex-basis:放大,缩小,基础大小-->

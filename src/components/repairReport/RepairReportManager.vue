@@ -3,11 +3,19 @@
     <!--搜索-->
     <div style="margin-bottom: 5px">
       <!--@keyup.enter.native回车事件调用函数-->
-      <el-input v-model="name" placeholder="请输入名字" suffix-icon="el-icon-search" style="width: 20%" size="small"
-                @keyup.enter.native="loadPost"></el-input>
-      <el-select v-model="sex" filterable placeholder="请选择性别" size="small" style="margin-left: 5px">
+<!--      <el-input v-model="name" placeholder="请输入名字" suffix-icon="el-icon-search" style="width: 20%" size="small"-->
+<!--                @keyup.enter.native="loadPost"></el-input>-->
+      <el-select v-model="situationType" filterable placeholder="请选择报修类型" size="small" style="margin-left: 5px">
         <el-option
-            v-for="item in sexs"
+            v-for="item in situationTypeData"
+            :key="item.id"
+            :label="item.situationType"
+            :value="item.id">
+        </el-option>
+      </el-select>
+      <el-select v-model="question" filterable placeholder="请选择是否解决" size="small" style="margin-left: 5px">
+        <el-option
+            v-for="item in questions"
             :key="item.value"
             :label="item.label"
             :value="item.value">
@@ -15,7 +23,6 @@
       </el-select>
       <el-button type="primary" size="small" style="margin-left: 5px" @click="loadPost">查询</el-button>
       <el-button type="success" size="small" @click="resetParam">重置</el-button>
-      <el-button type="primary" size="small" style="margin-left: 5px" @click="add">新增</el-button>
     </div>
     <!--背景颜色/文字颜色-->
     <el-table :data="tableData"
@@ -24,55 +31,39 @@
     >
       <el-table-column prop="id" label="ID" width="120px">
       </el-table-column>
-      <el-table-column prop="num" label="账号" width="180px">
+      <el-table-column prop="situationType" label="保修类型" width="180px" :formatter="situationTypeFormatter">
       </el-table-column>
-      <el-table-column prop="name" label="姓名" width="180px">
+      <el-table-column prop="createTime" label="创建时间" width="180px">
       </el-table-column>
-      <el-table-column prop="age" label="年龄" width="180px">
+      <el-table-column prop="userName" label="申请人" width="180px" :formatter="userFormatter">
       </el-table-column>
-      <el-table-column prop="sex" label="性别" width="180px">
+      <el-table-column prop="remark" label="备注" width="180px">
+      </el-table-column>
+      <el-table-column prop="status" label="报修状态" width="180px">
         <template slot-scope="scope">
           <el-tag
-              :type="scope.row.sex === 1 ? 'primary' : 'success'"
-              disable-transitions>{{scope.row.sex === 1 ? '男' : '女'}}
+              :type="scope.row.status === 1+'' ? 'success' : 'danger'"
+              disable-transitions>{{scope.row.status === 1+'' ? '已解决' : '未解决'}}
           </el-tag>
         </template>
-      </el-table-column>
-      <el-table-column prop="roleId" label="角色" width="180px">
-        <template slot-scope="scope">
-          <el-tag
-              :type="scope.row.roleId === 0 ?
-              'danger' : (scope.row.roleId === 1 ?
-              'primary' : 'success')"
-              disable-transitions>{{
-              scope.row.roleId === 0 ?
-                  '超级管理员' : (scope.row.roleId === 1 ?
-                  '管理员' : '用户')
-            }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="dormitoryNum" label="宿舍号" width="180px">
-      </el-table-column>
-      <el-table-column prop="phone" label="电话" width="180px">
       </el-table-column>
       <el-table-column prop="operate" label="操作">
         <template slot-scope="scope">
           <!--          编辑需要整行数据,删除只需要id即可-->
-          <el-button size="small" type="primary" @click="mod(scope.row)">编辑</el-button>
+          <el-button size="small" type="primary" @click="check(scope.row)">查看详情</el-button>
           <!--          点击确认按钮时触发-->
-          <el-popconfirm
-              confirm-button-text='好的'
-              cancel-button-text='不用了'
-              icon="el-icon-info"
-              icon-color="red"
-              title="确定删除吗？"
-              @confirm="del(scope.row.id)"
-              style="margin-left: 5px"
-          >
-            <!--slot="reference"触发 Popconfirm 显示的 HTML 元素-->
-            <el-button slot="reference" size="small" type="danger">删除</el-button>
-          </el-popconfirm>
+<!--          <el-popconfirm-->
+<!--              confirm-button-text='好的'-->
+<!--              cancel-button-text='不用了'-->
+<!--              icon="el-icon-info"-->
+<!--              icon-color="red"-->
+<!--              title="确定删除吗？"-->
+<!--              @confirm="del(scope.row.id)"-->
+<!--              style="margin-left: 5px"-->
+<!--          >-->
+<!--            &lt;!&ndash;slot="reference"触发 Popconfirm 显示的 HTML 元素&ndash;&gt;-->
+<!--            <el-button slot="reference" size="small" type="danger">删除</el-button>-->
+<!--          </el-popconfirm>-->
           <!--          <el-button size="small" type="danger" @click="del(scope.row.id)">删除</el-button>-->
         </template>
       </el-table-column>
@@ -95,49 +86,49 @@
         :visible.sync="centerDialogVisible"
         width="30%"
         center>
-      <el-form ref="form" :model="form" label-width="80px" :rules="rule">
+      <el-form ref="form" :model="form" label-width="80px" :rules="rule" :disabled="true">
         <!--这里加prop是为了检查,form需要索引这个属性-->
-        <el-form-item label="账号" prop="num">
+        <el-form-item label="报修类型" prop="situationType">
           <!--:span="11"属性可以增加长度-->
           <el-col :span="20">
-            <el-input v-model="form.num"></el-input>
+            <el-input v-model="form.situationType"></el-input>
+<!--            <span>{{form.situationType}}</span>-->
           </el-col>
         </el-form-item>
 
-        <el-form-item label="密码" prop="password">
+        <el-form-item label="创建时间" prop="createTime">
           <el-col :span="20">
-            <el-input v-model="form.password"></el-input>
+            <el-input v-model="form.createTime"></el-input>
           </el-col>
         </el-form-item>
 
-        <el-form-item label="姓名" prop="name">
+        <el-form-item label="申请人" prop="userName">
           <el-col :span="20">
-            <el-input v-model="form.name"></el-input>
+            <el-input v-model="form.userName"></el-input>
           </el-col>
         </el-form-item>
 
-        <el-form-item label="年龄" prop="age">
+        <el-form-item label="备注" prop="remark">
           <el-col :span="20">
-            <el-input v-model="form.age"></el-input>
+            <el-input v-model="form.remark"></el-input>
           </el-col>
         </el-form-item>
 
-        <el-form-item label="性别" prop="sex">
-          <el-radio-group v-model="form.sex">
-            <el-radio label="1">男</el-radio>
-            <el-radio label="0">女</el-radio>
-          </el-radio-group>
-        </el-form-item>
-
-        <el-form-item label="电话" prop="phone">
+        <el-form-item label="状态" prop="status">
           <el-col :span="20">
-            <el-input v-model="form.phone"></el-input>
+            <el-input v-model="form.status"></el-input>
           </el-col>
         </el-form-item>
+
+<!--        <el-form-item label="电话" prop="phone">-->
+<!--          <el-col :span="20">-->
+<!--            <el-input v-model="form.phone"></el-input>-->
+<!--          </el-col>-->
+<!--        </el-form-item>-->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="close">取 消</el-button>
-        <el-button type="primary" @click="save">确 定</el-button>
+        <el-button type="primary" @click="doMod">已解决</el-button>
       </span>
     </el-dialog>
   </div>
@@ -145,7 +136,7 @@
 
 <script>
 export default {
-  name: "UserManager",
+  name: "RepairReportManager",
   data() {
     //单独判断年龄输入
     let checkAge = (rule,value,callback) =>{
@@ -161,7 +152,7 @@ export default {
       if(this.form.id){
         return callback();
       }
-      this.$axios.get(this.$httpUrl+'/user/findByNum?num='+this.form.num).then(res=>res.data).then(res=>{
+      this.$axios.get(this.$httpUrl+'/repairReport/findByNum?num='+this.form.num).then(res=>res.data).then(res=>{
         //没有查到数据就回调
         if (res.code===400){
           callback()
@@ -175,31 +166,32 @@ export default {
     return {
       // tableData: Array(10).fill(item)//生成10个装item数据的数组
       tableData: [],
+      situationType:'',
+      situationTypeData:[],
+      userData:[],
       pageSize:5,
       pageNum:1,
       total:0,
       name:'',
-      sex:'',
-      sexs:[
+      question:'',
+      questions:[
         {
           value:'1',
-          label:'男',
+          label:'解决',
         },
         {
           value: '0',
-          label: '女',
+          label: '未解决',
         }
       ],
       centerDialogVisible:false,
       form:{
         id:"",
-        num:"",
-        name:"",
-        password:"",
-        age:"",
-        sex:"1",
-        phone:"",
-        roleId:"2",
+        situationType:"",
+        createTime:"",
+        userName:"",
+        remark:"",
+        status:"",
       },
       //交互数据
       param:{},
@@ -235,19 +227,19 @@ export default {
   methods:{
     loadGet(){
       //axios请求，并且筛选出data
-      this.$axios.get(this.$httpUrl+'/user/list').then(res=>res.data).then(res=>{
+      this.$axios.get(this.$httpUrl+'/repairReport/list').then(res=>res.data).then(res=>{
         console.log(res)
       })
     },
     loadPost(){
       //axios请求，并且筛选出data
-      this.$axios.post(this.$httpUrl+'/user/listPage',{
+      this.$axios.post(this.$httpUrl+'/repairReport/listPage',{
         pageSize:this.pageSize,
         pageNum:this.pageNum,
         param:{
-          name:this.name,
-          sex:this.sex,
-          roleId:"2",
+          situationType:this.situationType+'',
+          status:this.question+'',
+          // roleId:"2",
         }
       }).then(res=>res.data).then(res=>{
         console.log(res)
@@ -274,20 +266,11 @@ export default {
       this.loadPost()
     },
     resetParam(){
-      this.name=""
-      this.sex=""
+      this.situationType=""
     },
-    add(){
-      this.form.id=""
-      this.centerDialogVisible=true
-      //类似异步的东西,resetForm方法可以重置对话框内的东西,因为标签加了prop
-      //它常用于在改变数据后,等待Vue完成对DOM的更新,然后执行一些操作或访问更新后的DOM元素
-      this.$nextTick(()=>{
-        this.resetForm();
-      })
-    },
-    doAdd(){
-      this.$axios.post(this.$httpUrl+'/user/save', this.form).then(res=>res.data).then(res=>{
+    del(id){
+      console.log(id)
+      this.$axios.get(this.$httpUrl+'/repairReport/del?id='+id).then(res=>res.data).then(res=>{
         console.log(res)
         if (res.code===200){
           //alert("成功")
@@ -302,67 +285,43 @@ export default {
         }
       })
     },
-    mod(row){
+    doMod(){
+      if (this.form.status+''==='1'){
+        this.$message('该问题已解决');
+        return
+      }
+      this.$axios.post(this.$httpUrl+'/repairReport/editStatus', {
+        param:{
+          id:this.form.id,
+          status:"1",
+        }
+      }).then(res=>res.data).then(res=>{
+        console.log(res)
+        if (res.code===200){
+          //alert("成功")
+          this.$message({
+            message: '成功',
+            type: 'success'
+          });
+          this.centerDialogVisible=false
+          this.loadPost()
+        }else {
+          this.$message.error('发生错误');
+        }
+      })
+    },
+    check(row){
       console.log(row)
       this.centerDialogVisible = true
       this.$nextTick(()=>{
         //赋值到表单
         this.form.id = row.id
-        this.form.num = row.num
-        this.form.name = row.name
-        this.form.password = row.password
-        this.form.age = row.age+''
-        this.form.sex = row.sex+''
-        this.form.phone = row.phone
-        this.form.roleId = row.roleId
+        this.form.situationType = row.situationType
+        this.form.createTime = row.createTime
+        this.form.userName = row.userName
+        this.form.remark = row.remark+''
+        this.form.status = row.status+''
       })
-    },
-    doMod(){
-      this.$axios.post(this.$httpUrl+'/user/mod', this.form).then(res=>res.data).then(res=>{
-        console.log(res)
-        if (res.code===200){
-          //alert("成功")
-          this.$message({
-            message: '成功',
-            type: 'success'
-          });
-          this.centerDialogVisible=false
-          this.loadPost()
-        }else {
-          this.$message.error('发生错误');
-        }
-      })
-    },
-    del(id){
-      console.log(id)
-      this.$axios.get(this.$httpUrl+'/user/del?id='+id).then(res=>res.data).then(res=>{
-        console.log(res)
-        if (res.code===200){
-          //alert("成功")
-          this.$message({
-            message: '成功',
-            type: 'success'
-          });
-          this.centerDialogVisible=false
-        }else {
-          this.$message.error('发生错误');
-        }
-      })
-    },
-    save(){
-      this.$refs.form.validate((valid) => {
-        //输入语法检查
-        if (valid) {
-          if(this.form.id){
-            this.doMod()
-          }else {
-            this.doAdd()
-          }
-        } else {
-          this.$message.error('语法不符合规范');
-          return false;
-        }
-      });
     },
     close(){
       this.centerDialogVisible = false
@@ -383,15 +342,48 @@ export default {
         }
       });
     },
-  },
-  watch:{
-    dormitoryNum(){
-      this.loadPost()
+    //获取报修类型
+    loadSituationType(){
+      //获取楼层数
+      this.$axios.post(this.$httpUrl+'/situationType/list').then(res=>res.data).then(res=>{
+        console.log(res)
+        if (res.code===200){
+          this.situationTypeData = res.data
+        }else {
+          this.$message.error('发生错误');
+        }
+      })
+    },
+    //获取报修类型
+    loadUser(){
+      //获取楼层数
+      this.$axios.post(this.$httpUrl+'/user/list').then(res=>res.data).then(res=>{
+        console.log(res)
+        if (res.code===200){
+          this.userData = res.data
+        }else {
+          this.$message.error('发生错误');
+        }
+      })
+    },
+    situationTypeFormatter(row){
+      let temp = this.situationTypeData.find(item=>{
+        return item.id+'' === row.situationType+''
+      })
+      return temp && temp.situationType
+    },
+    userFormatter(row){
+      let temp = this.userData.find(item=>{
+        return item.id+'' === row.userName+''
+      })
+      return temp && temp.name
     },
   },
   beforeMount() {
     // this.loadGet();
     this.loadPost();
+    this.loadSituationType();
+    this.loadUser();
   }
 }
 </script>

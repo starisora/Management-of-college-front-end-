@@ -15,7 +15,7 @@
       </el-select>
       <el-button type="primary" size="small" style="margin-left: 5px" @click="loadPost">查询</el-button>
       <el-button type="success" size="small" @click="resetParam">重置</el-button>
-      <el-button type="primary" size="small" style="margin-left: 5px" @click="add">新增</el-button>
+<!--      <el-button type="primary" size="small" style="margin-left: 5px" @click="add">新增</el-button>-->
     </div>
     <!--背景颜色/文字颜色-->
     <el-table :data="tableData"
@@ -54,28 +54,28 @@
       </el-table-column>
       <el-table-column prop="dormitoryNum" label="宿舍号" width="180px">
       </el-table-column>
-      <el-table-column prop="phone" label="电话" width="180px">
+      <el-table-column prop="phone" label="电话">
       </el-table-column>
-      <el-table-column prop="operate" label="操作">
-        <template slot-scope="scope">
-          <!--          编辑需要整行数据,删除只需要id即可-->
-          <el-button size="small" type="primary" @click="mod(scope.row)">编辑</el-button>
-          <!--          点击确认按钮时触发-->
-          <el-popconfirm
-              confirm-button-text='好的'
-              cancel-button-text='不用了'
-              icon="el-icon-info"
-              icon-color="red"
-              title="确定删除吗？"
-              @confirm="del(scope.row.id)"
-              style="margin-left: 5px"
-          >
-            <!--slot="reference"触发 Popconfirm 显示的 HTML 元素-->
-            <el-button slot="reference" size="small" type="danger">删除</el-button>
-          </el-popconfirm>
-          <!--          <el-button size="small" type="danger" @click="del(scope.row.id)">删除</el-button>-->
-        </template>
-      </el-table-column>
+<!--      <el-table-column prop="operate" label="操作">-->
+<!--        <template slot-scope="scope">-->
+<!--          &lt;!&ndash;          编辑需要整行数据,删除只需要id即可&ndash;&gt;-->
+<!--          <el-button size="small" type="primary" @click="mod(scope.row)">编辑</el-button>-->
+<!--          &lt;!&ndash;          点击确认按钮时触发&ndash;&gt;-->
+<!--          <el-popconfirm-->
+<!--              confirm-button-text='好的'-->
+<!--              cancel-button-text='不用了'-->
+<!--              icon="el-icon-info"-->
+<!--              icon-color="red"-->
+<!--              title="确定删除吗？"-->
+<!--              @confirm="del(scope.row.id)"-->
+<!--              style="margin-left: 5px"-->
+<!--          >-->
+<!--            &lt;!&ndash;slot="reference"触发 Popconfirm 显示的 HTML 元素&ndash;&gt;-->
+<!--            <el-button slot="reference" size="small" type="danger">删除</el-button>-->
+<!--          </el-popconfirm>-->
+<!--          &lt;!&ndash;          <el-button size="small" type="danger" @click="del(scope.row.id)">删除</el-button>&ndash;&gt;-->
+<!--        </template>-->
+<!--      </el-table-column>-->
     </el-table>
     <!--    分页-->
     <el-pagination
@@ -145,7 +145,7 @@
 
 <script>
 export default {
-  name: "UserManager",
+  name: "UserInDormitory",
   data() {
     //单独判断年龄输入
     let checkAge = (rule,value,callback) =>{
@@ -174,6 +174,7 @@ export default {
 
     return {
       // tableData: Array(10).fill(item)//生成10个装item数据的数组
+      user:JSON.parse(sessionStorage.getItem('submitUser')),
       tableData: [],
       pageSize:5,
       pageNum:1,
@@ -241,12 +242,17 @@ export default {
     },
     loadPost(){
       //axios请求，并且筛选出data
+      if (!this.user.dormitoryNum){
+        this.$message.error('你没有加入宿舍');
+        return ;
+      }
       this.$axios.post(this.$httpUrl+'/user/listPage',{
         pageSize:this.pageSize,
         pageNum:this.pageNum,
         param:{
           name:this.name,
           sex:this.sex,
+          dormitoryNum:this.user.dormitoryNum,
           roleId:"2",
         }
       }).then(res=>res.data).then(res=>{

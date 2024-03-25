@@ -3,8 +3,8 @@
     <!--搜索-->
     <div style="margin-bottom: 5px">
       <!--@keyup.enter.native回车事件调用函数-->
-      <el-input v-model="name" placeholder="请输入物品名" suffix-icon="el-icon-search" style="width: 20%" size="small"
-                @keyup.enter.native="loadPost"></el-input>
+<!--      <el-input v-model="name" placeholder="请输入物品名" suffix-icon="el-icon-search" style="width: 20%" size="small"-->
+<!--                @keyup.enter.native="loadPost"></el-input>-->
       <el-select v-model="floor" placeholder="请选择楼层号" size="small" style="margin-left: 5px">
         <el-option
             v-for="item in floorData"
@@ -35,8 +35,8 @@
       </el-table-column>
       <el-table-column prop="num" label="宿舍号" width="180px">
       </el-table-column>
-      <el-table-column prop="dormitoryDirector" label="室长" width="180px" :formatter="formatDormitoryDirector">
-      </el-table-column>
+<!--      <el-table-column prop="dormitoryDirector" label="室长" width="180px" :formatter="formatDormitoryDirector">-->
+<!--      </el-table-column>-->
 <!--      <el-table-column prop="peopleCount" label="寝室人数" width="180px">-->
 <!--      </el-table-column>-->
 
@@ -60,7 +60,7 @@
           <!--          <el-button size="small" type="danger" @click="del(scope.row.id)">删除</el-button>-->
 
           <el-button size="small" type="primary" @click="checkDormitory(scope.row)">查看宿舍</el-button>
-          <el-button size="small" type="success" @click="userAddDormitory((scope.row))">添加宿舍成员</el-button>
+          <el-button size="small" type="success" @click="userAddDormitory(scope.row)">添加宿舍成员</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -122,7 +122,7 @@
         :visible.sync="userInDormitoryDialogVisible"
         width="90%"
         center>
-      <user-component :dormitoryNum="dormitoryNum"></user-component>
+      <user-component :dormitoryNum="dormitoryNum" ref="refresh1"></user-component>
     </el-dialog>
 
     <!--    查看宿舍-->
@@ -131,7 +131,7 @@
         :visible.sync="addUserDialogVisible"
         width="90%"
         center>
-      <user-dormitory-is-null-page :dormitoryNum="dormitoryNum"></user-dormitory-is-null-page>
+      <user-dormitory-is-null-page :dormitoryNum="dormitoryNum" ref="refresh2"></user-dormitory-is-null-page>
     </el-dialog>
   </div>
 </template>
@@ -350,6 +350,7 @@ export default {
         }
       });
     },
+    //获取楼层数
     loadFloor(){
       this.$axios.post(this.$httpUrl+'/floor/list').then(res=>res.data).then(res=>{
         console.log(res)
@@ -400,14 +401,15 @@ export default {
 
   watch:{
     addUserDialogVisible(){
+      // console.log("调用addUser")
       if(this.addUserDialogVisible===true){
-        // console.log("窗口改变")
-        this.loadPost()
+        this.$refs.refresh2.loadPost()
       }
     },
     userInDormitoryDialogVisible(){
-      if(this.userInDormitoryDialogVisible===true){
-        this.loadPost()
+      // console.log("调用userIn")
+      if (this.userInDormitoryDialogVisible===true){
+        this.$refs.refresh1.loadPost()
       }
     }
   },
